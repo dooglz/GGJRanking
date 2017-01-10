@@ -59,6 +59,8 @@ $myfile = fopen("ggjsites.json", "r") or die("Unable to open file!");
 
 <body>
     <script type="text/javascript">
+	var data;
+	var total_skills;
         (function() { 
 <?php
 	echo("var rawdata = '".fread($myfile, filesize("ggjsites.json"))."';");
@@ -96,7 +98,7 @@ $myfile = fopen("ggjsites.json", "r") or die("Unable to open file!");
 
             var url = "data.json";
             var dataP = JSON.parse(rawdata);
-            var data = dataP;
+            data = dataP;
 	
            /* for (var key in dataP) {
                 data.push({
@@ -108,9 +110,55 @@ $myfile = fopen("ggjsites.json", "r") or die("Unable to open file!");
             data.sort(function(a, b) {
                 return b.jammers - a.jammers
             });
+						
+			total_skills = [
+			{name: "2d art", skill:"s_2d_art",jammers:0},
+			{name: "3d art", skill:"s_3d_art",jammers:0},
+			{name: "animation", skill:"s_animation",jammers:0},
+			{name: "audio", skill:"s_audio",jammers:0},
+			{name: "game design", skill:"s_game_design",jammers:0},
+			{name: "game development", skill:"s_game_development",jammers:0},
+			{name: "hardware", skill:"s_hardware",jammers:0},
+			{name: "marketing", skill:"s_marketing",jammers:0},
+			{name: "music", skill:"s_music",jammers:0},
+			{name: "programming", skill:"s_programming",jammers:0},
+			{name: "project management", skill:"s_project_management",jammers:0},
+			{name: "quality assurance", skill:"s_quality_assurance",jammers:0},
+			{name: "story and narrative", skill:"s_story_and_narrative",jammers:0},
+			{name: "web design", skill:"s_web_design",jammers:0},
+			{name: "writing", skill:"s_writing",jammers:0}];
+				   
+            for( var k in data){
+				total_skills[0].jammers +=  data[k]["s_2d_art"];
+				total_skills[1].jammers +=  data[k]["s_3d_art"];
+				total_skills[2].jammers +=  data[k]["s_animation"];
+				total_skills[3].jammers +=  data[k]["s_audio"];
+				total_skills[4].jammers +=  data[k]["s_game_design"];
+				total_skills[5].jammers +=  data[k]["s_game_development"];
+				total_skills[6].jammers +=  data[k]["s_hardware"];
+				total_skills[7].jammers +=  data[k]["s_marketing"];
+				total_skills[8].jammers +=  data[k]["s_music"];
+				total_skills[9].jammers +=  data[k]["s_programming"];
+				total_skills[10].jammers +=  data[k]["s_project_management"];
+				total_skills[11].jammers +=  data[k]["s_quality_assurance"];
+				total_skills[12].jammers +=  data[k]["s_story_and_narrative"];
+				total_skills[13].jammers +=  data[k]["s_web_design"];
+				total_skills[14].jammers += data[k]["s_writing"];
+			}
+			var total_skills_str = "";
+			for( var k in total_skills){
+				var s = total_skills[k];
+				total_skills_str += s.name + ':' + s.jammers + "   ";
+			}
+			
+			
             console.log(data);
             //d3.json(rawdata, function(data) {
-
+	        var skillsvg = d3.select("body").append("div");
+			skillsvg.html(   
+ 						total_skills_str
+			);
+			
             var xMax = d3.max(data, function(d) {
                 return d.jammers;
             });
@@ -124,7 +172,7 @@ $myfile = fopen("ggjsites.json", "r") or die("Unable to open file!");
                 .attr("x", margin.left)
                 .attr("y", (margin.top) / 2)
                 .attr("text-anchor", "start")
-                .text("GGJ 2017 Registered jammers")
+                .text("GGJ 2017 UK Registered jammers")
                 .attr("class", "title");
 
             var groups = barSvg.append("g").attr("class", "labels")
@@ -226,8 +274,49 @@ $myfile = fopen("ggjsites.json", "r") or die("Unable to open file!");
                 .attr("stroke", "black");
 
             //});
-
+			makePie();
+             
         })();
+		
+		function makePie(){
+			  var piwidth = 960,
+					piheight = 500,
+					piradius = Math.min(piwidth, piheight) / 2;
+
+				var c20 = d3.scale.category20();
+
+				var piarc = d3.svg.arc()
+					.outerRadius(piradius - 10)
+					.innerRadius(0);
+
+				 var pilabelArc = d3.svg.arc()
+					.outerRadius(piradius - 40)
+					.innerRadius(piradius - 40);
+
+				var pie = d3.layout.pie()
+					.sort(null)
+					.value(function(d) { return d.jammers; });
+
+				var pisvg = d3.select("body").append("svg")
+					.attr("width", piwidth)
+					.attr("height", piheight)
+				  .append("g")
+					.attr("transform", "translate(" + piwidth / 2 + "," + piheight / 2 + ")");
+					
+				var pig = pisvg.selectAll(".arc")
+					  .data(pie(total_skills))
+					.enter().append("g")
+					  .attr("class", "arc");
+
+				  pig.append("path")
+					  .attr("d", piarc)
+					  .style("fill", function(d,i) { return c20(i); });
+
+				  pig.append("text")
+					  .attr("transform", function(d) { return "translate(" + pilabelArc.centroid(d) + ")"; })
+					  .attr("dy", ".35em")
+					  .text(function(d) { return d.data.name; });
+		}
     </script>
 </body>
 

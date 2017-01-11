@@ -121,7 +121,7 @@ $myfile = fopen("ggjsites.json", "r") or die("Unable to open file!");
                 return b.jammers - a.jammers
             });
 						
-			total_skills = [
+			total_skills = {name:"Total Uk Jammer Skills",  skills:[
 			{name: "2d Art", skill:"s_2d_art",jammers:0},
 			{name: "3d Art", skill:"s_3d_art",jammers:0},
 			{name: "Animation", skill:"s_animation",jammers:0},
@@ -136,24 +136,58 @@ $myfile = fopen("ggjsites.json", "r") or die("Unable to open file!");
 			{name: "Marketing", skill:"s_marketing",jammers:0},
 			{name: "Story and Narrative", skill:"s_story_and_narrative",jammers:0},
 			{name: "Web Design", skill:"s_web_design",jammers:0},
-			{name: "Writing", skill:"s_writing",jammers:0}];
+			{name: "Writing", skill:"s_writing",jammers:0}]};
 				   
             for( var k in data){
-				total_skills[0].jammers +=  data[k]["s_2d_art"];
-				total_skills[1].jammers +=  data[k]["s_3d_art"];
-				total_skills[2].jammers +=  data[k]["s_animation"];
-				total_skills[3].jammers +=  data[k]["s_audio"];
-				total_skills[4].jammers +=  data[k]["s_game_design"];
-				total_skills[5].jammers +=  data[k]["s_game_development"];
-				total_skills[6].jammers +=  data[k]["s_music"];
-				total_skills[7].jammers +=  data[k]["s_programming"];
-				total_skills[8].jammers +=  data[k]["s_hardware"];
-				total_skills[9].jammers +=  data[k]["s_project_management"];
-				total_skills[10].jammers +=  data[k]["s_quality_assurance"];
-				total_skills[11].jammers +=  data[k]["s_marketing"];
-				total_skills[12].jammers +=  data[k]["s_story_and_narrative"];
-				total_skills[13].jammers +=  data[k]["s_web_design"];
-				total_skills[14].jammers += data[k]["s_writing"];
+				data[k].total_skills = {name: data[k].jamsite,  skills:[
+					{name: "2d Art", skill:"s_2d_art",jammers:0},
+					{name: "3d Art", skill:"s_3d_art",jammers:0},
+					{name: "Animation", skill:"s_animation",jammers:0},
+					{name: "Audio", skill:"s_audio",jammers:0},
+					{name: "Game Design", skill:"s_game_design",jammers:0},
+					{name: "Game Development", skill:"s_game_development",jammers:0},
+					{name: "Music", skill:"s_music",jammers:0},
+					{name: "Programming", skill:"s_programming",jammers:0},
+					{name: "Hardware", skill:"s_hardware",jammers:0},
+					{name: "Project Management", skill:"s_project_management",jammers:0},
+					{name: "QA", skill:"s_quality_assurance",jammers:0},
+					{name: "Marketing", skill:"s_marketing",jammers:0},
+					{name: "Story and Narrative", skill:"s_story_and_narrative",jammers:0},
+					{name: "Web Design", skill:"s_web_design",jammers:0},
+					{name: "Writing", skill:"s_writing",jammers:0}
+				]};
+
+				data[k].total_skills.skills[0].jammers =  data[k]["s_2d_art"];
+				data[k].total_skills.skills[1].jammers =  data[k]["s_3d_art"];
+				data[k].total_skills.skills[2].jammers =  data[k]["s_animation"];
+				data[k].total_skills.skills[3].jammers =  data[k]["s_audio"];
+				data[k].total_skills.skills[4].jammers =  data[k]["s_game_design"];
+				data[k].total_skills.skills[5].jammers =  data[k]["s_game_development"];
+				data[k].total_skills.skills[6].jammers =  data[k]["s_music"];
+				data[k].total_skills.skills[7].jammers =  data[k]["s_programming"];
+				data[k].total_skills.skills[8].jammers =  data[k]["s_hardware"];
+				data[k].total_skills.skills[9].jammers =  data[k]["s_project_management"];
+				data[k].total_skills.skills[10].jammers =  data[k]["s_quality_assurance"];
+				data[k].total_skills.skills[11].jammers =  data[k]["s_marketing"];
+				data[k].total_skills.skills[12].jammers =  data[k]["s_story_and_narrative"];
+				data[k].total_skills.skills[13].jammers =  data[k]["s_web_design"];
+				data[k].total_skills.skills[14].jammers = data[k]["s_writing"];
+				
+				total_skills.skills[0].jammers +=  data[k]["s_2d_art"];
+				total_skills.skills[1].jammers +=  data[k]["s_3d_art"];
+				total_skills.skills[2].jammers +=  data[k]["s_animation"];
+				total_skills.skills[3].jammers +=  data[k]["s_audio"];
+				total_skills.skills[4].jammers +=  data[k]["s_game_design"];
+				total_skills.skills[5].jammers +=  data[k]["s_game_development"];
+				total_skills.skills[6].jammers +=  data[k]["s_music"];
+				total_skills.skills[7].jammers +=  data[k]["s_programming"];
+				total_skills.skills[8].jammers +=  data[k]["s_hardware"];
+				total_skills.skills[9].jammers +=  data[k]["s_project_management"];
+				total_skills.skills[10].jammers +=  data[k]["s_quality_assurance"];
+				total_skills.skills[11].jammers +=  data[k]["s_marketing"];
+				total_skills.skills[12].jammers +=  data[k]["s_story_and_narrative"];
+				total_skills.skills[13].jammers +=  data[k]["s_web_design"];
+				total_skills.skills[14].jammers += data[k]["s_writing"];
 			}
 			var total_skills_str = "";
 			for( var k in total_skills){
@@ -251,6 +285,11 @@ $myfile = fopen("ggjsites.json", "r") or die("Unable to open file!");
                     var currentGroup = d3.select(this.parentNode);
                     currentGroup.select("rect").style("fill", "#ffff33");
                     currentGroup.select("text").style("font-weight", "normal");
+                })
+				.on("click", function(element) {
+                    var currentGroup = d3.select(this.parentNode);
+					console.log(element);
+					 change(element.total_skills);
                 });
 
 			tt
@@ -303,8 +342,19 @@ $myfile = fopen("ggjsites.json", "r") or die("Unable to open file!");
 		var c20b;
 		var piarc,piouterArc,piwidth,piheight,piradius;
 		var centerText;
+		var piCol
 		function makePie(){
 			c20b = d3.scale.category20b();
+			piCol = d3.scale.ordinal()
+			.domain(["s_2d_art","s_3d_art","s_animation","s_audio","s_game_design","s_game_development","s_music",
+					"s_programming","s_hardware","s_project_management","s_quality_assurance","s_marketing",
+					"s_story_and_narrative","s_web_design","s_writing"])
+			.range(["#ff9000", "#ff0000", "#e87e33", "#edc73d", 
+					"#33e8ba", "#00ff00", "#efef26", "#4adb62",
+					"#51e2b9", "#deefea", "#dbd2b6", "#d2b6db",
+					"#0095f2", "#00f2c9", "#2dafe2"]);
+
+			
 			piwidth = 960;
 			piheight = 450;
 			piradius = Math.min(piwidth, piheight) / 2;
@@ -347,15 +397,33 @@ $myfile = fopen("ggjsites.json", "r") or die("Unable to open file!");
 				return "Total Uk Jammer Skills";
 			});
 		}
+		function mergeWithFirstEqualZero(first, second){
+			var secondSet = d3.set(); second.forEach(function(d) { secondSet.add(d.label); });
+
+			var onlyFirst = first
+				.filter(function(d){ return !secondSet.has(d.label) })
+				.map(function(d) { return {label: d.label, value: 0}; });
+			return d3.merge([ second, onlyFirst ])
+				.sort(function(a,b) {
+					return d3.ascending(a.label, b.label);
+				});
+		}
 		
 		function change(data) {
+			centerText.text(function(d) {
+				return data.name;
+			}).call(wrap, 160);
+			var data0 = pisvg.select(".slices").selectAll("path.slice").data().map(function(d) { return d.data });
+			if (data0.length == 0) data0 = data.skills;
+			var was = mergeWithFirstEqualZero(data.skills, data0);
+			var is = mergeWithFirstEqualZero(data0, data.skills);
 			/* ------- PIE SLICES -------*/
 			var slice = pisvg.select(".slices").selectAll("path.slice")
-				.data(pie(data), pikey);
+				.data(pie(data.skills), pikey);
 
 			slice.enter()
 				.insert("path")
-				.style("fill", function(d,i) { return c20b(i); })
+				.style("fill", function(d,i) { console.log(d.data.skill); return piCol(d.data.skill); })
 				.attr("class", "slice");
 
 			slice		
@@ -373,13 +441,14 @@ $myfile = fopen("ggjsites.json", "r") or die("Unable to open file!");
 				.remove();
 
 			/* ------- TEXT LABELS -------*/
-			calcpercent(data);
+			calcpercent(data.skills);
 			var text = pisvg.select(".labels").selectAll("text")
-				.data(pie(data), pikey);
+				.data(pie(data.skills), pikey);
 
 			text.enter()
 				.append("text")
 				.attr("dy", ".35em")
+				.style("opacity", 0)
 				.text(function(d) {
 					return d.data.name + ' '+ d.data.jammers;
 				});
@@ -387,8 +456,15 @@ $myfile = fopen("ggjsites.json", "r") or die("Unable to open file!");
 			function midAngle(d){
 				return d.startAngle + (d.endAngle - d.startAngle)/2;
 			}
-
+			text = pisvg.select(".labels").selectAll("text").data(pie(is), pikey);
+		
 			text.transition().duration(1000)
+				.style("opacity", function(d) {
+					return d.data.jammers == 0 ? 0 : 1;
+				})
+				.text(function(d) {
+					return d.data.name + ' '+ d.data.jammers;
+				})
 				.attrTween("transform", function(d) {
 					this._current = this._current || d;
 					var interpolate = d3.interpolate(this._current, d);
@@ -410,18 +486,29 @@ $myfile = fopen("ggjsites.json", "r") or die("Unable to open file!");
 						return midAngle(d2) < Math.PI ? "start":"end";
 					};
 				});
-
+				text = pisvg.select(".labels").selectAll("text")
+						.data(pie(data.skills), pikey);
+		
 			text.exit().remove();
 
 			/* ------- SLICE TO TEXT POLYLINES -------*/
 
 			var polyline = pisvg.select(".lines").selectAll("polyline")
-				.data(pie(data), pikey);
+				.data(pie(data.skills), pikey);
 			
 			polyline.enter()
-				.append("polyline");
+				.append("polyline")
+				.style("opacity", 0)
+				.each(function(d) {
+					this._current = d;
+				});
 
+			polyline = pisvg.select(".lines").selectAll("polyline").data(pie(is), pikey);
+			
 			polyline.transition().duration(1000)
+				.style("opacity", function(d) {
+					return d.data.jammers == 0 ? 0 : .5;
+				})
 				.attrTween("points", function(d){
 					this._current = this._current || d;
 					var interpolate = d3.interpolate(this._current, d);
@@ -433,11 +520,34 @@ $myfile = fopen("ggjsites.json", "r") or die("Unable to open file!");
 						return [piarc.centroid(d2), piouterArc.centroid(d2)];//, pos];
 					};			
 				});
-			
+				
+			polyline = pisvg.select(".lines").selectAll("polyline").data(pie(data.skills), pikey);
 			polyline.exit()
 				.remove();
 		};
-		
+		function wrap(text, width) {
+		  text.each(function() {
+			var text = d3.select(this),
+				words = text.text().split(/\s+/).reverse(),
+				word,
+				line = [],
+				lineNumber = 0,
+				lineHeight = 0.6, // ems
+				y = text.attr("y"),
+				dy = parseFloat(text.attr("dy")),
+				tspan = text.text(null).append("tspan").attr("x", 0).attr("y", y).attr("dy", dy + "em");
+			while (word = words.pop()) {
+			  line.push(word);
+			  tspan.text(line.join(" "));
+			  if (tspan.node().getComputedTextLength() > width) {
+				line.pop();
+				tspan.text(line.join(" "));
+				line = [word];
+				tspan = text.append("tspan").attr("x", 0).attr("y", y).attr("dy", ++lineNumber * lineHeight + dy + "em").text(word);
+			  }
+			}
+		  });
+		}
     </script>
 </body>
 

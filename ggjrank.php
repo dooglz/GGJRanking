@@ -1,21 +1,14 @@
 <?php
 error_reporting(E_ALL);
 if(!is_null($_POST['newdata']) &&  strlen ($_POST['newdata']) > 0 ){
-	$myfile = fopen("ggjsites.json", "w+") or die("Unable to open file!");
 	echo $_POST['newdata'];
+	$myfile = fopen("ggjsites.json", "w+") or die("Unable to open file!");
 	fwrite($myfile, urldecode ( $_POST['newdata']));
 	exit();
 }
 $myfile = fopen("ggjsites.json", "r") or die("Unable to open file!");
 //echo (fread($myfile,filesize("ggjsites.json")));
 ?>
-
-
-<!DOCTYPE html>
-<html>
-<?php error_reporting(E_ALL); if(!is_null($_POST[ 'newdata']) && strlen ($_POST[ 'newdata'])> 0 ){ echo $_POST['newdata']; $myfile = fopen("ggjsites.json", "w+") or die("Unable to open file!"); fwrite($myfile, urldecode ( $_POST['newdata'])); exit(); } $myfile = fopen("ggjsites.json", "r") or die("Unable to open file!"); //echo (fread($myfile,filesize("ggjsites.json"))); ?>
-
-
 <!DOCTYPE html>
 <html>
 
@@ -71,11 +64,10 @@ $myfile = fopen("ggjsites.json", "r") or die("Unable to open file!");
     <script type="text/javascript">
 	var data;
 	var total_skills;
-        (function() { 
-<?php
+	<?php
 	echo("var rawdata = '".fread($myfile, filesize("ggjsites.json"))."';");
 ?>
-
+        (function() { 
             var margin = {
                 top: 50,
                 bottom: 100,
@@ -120,81 +112,74 @@ $myfile = fopen("ggjsites.json", "r") or die("Unable to open file!");
             data.sort(function(a, b) {
                 return b.jammers - a.jammers
             });
-
-
-
-			total_skills = {name:"Total Uk Jammer Skills",  skills:[
-			{name: "2d Art", skill:"s_2d_art",jammers:0},
-			{name: "3d Art", skill:"s_3d_art",jammers:0},
-			{name: "Animation", skill:"s_animation",jammers:0},
-			{name: "Audio", skill:"s_audio",jammers:0},
-			{name: "Game Design", skill:"s_game_design",jammers:0},
-			{name: "Game Development", skill:"s_game_development",jammers:0},
-			{name: "Music", skill:"s_music",jammers:0},
-			{name: "Programming", skill:"s_programming",jammers:0},
-			{name: "Hardware", skill:"s_hardware",jammers:0},
-			{name: "Project Management", skill:"s_project_management",jammers:0},
-			{name: "QA", skill:"s_quality_assurance",jammers:0},
-			{name: "Marketing", skill:"s_marketing",jammers:0},
-			{name: "Story and Narrative", skill:"s_story_and_narrative",jammers:0},
-			{name: "Web Design", skill:"s_web_design",jammers:0},
-			{name: "Writing", skill:"s_writing",jammers:0}]};
+						
+			total_skills = {name:"Total Uk Jammer Skills",  skills:{}, visdata:[]};
 				   
             for( var k in data){
-				data[k].total_skills = {name: data[k].jamsite,  skills:[
-					{name: "2d Art", skill:"s_2d_art",jammers:0},
-					{name: "3d Art", skill:"s_3d_art",jammers:0},
-					{name: "Animation", skill:"s_animation",jammers:0},
-					{name: "Audio", skill:"s_audio",jammers:0},
-					{name: "Game Design", skill:"s_game_design",jammers:0},
-					{name: "Game Development", skill:"s_game_development",jammers:0},
-					{name: "Music", skill:"s_music",jammers:0},
-					{name: "Programming", skill:"s_programming",jammers:0},
-					{name: "Hardware", skill:"s_hardware",jammers:0},
-					{name: "Project Management", skill:"s_project_management",jammers:0},
-					{name: "QA", skill:"s_quality_assurance",jammers:0},
-					{name: "Marketing", skill:"s_marketing",jammers:0},
-					{name: "Story and Narrative", skill:"s_story_and_narrative",jammers:0},
-					{name: "Web Design", skill:"s_web_design",jammers:0},
-					{name: "Writing", skill:"s_writing",jammers:0}
-				]};
-
-				data[k].total_skills.skills[0].jammers =  data[k]["s_2d_art"];
-				data[k].total_skills.skills[1].jammers =  data[k]["s_3d_art"];
-				data[k].total_skills.skills[2].jammers =  data[k]["s_animation"];
-				data[k].total_skills.skills[3].jammers =  data[k]["s_audio"];
-				data[k].total_skills.skills[4].jammers =  data[k]["s_game_design"];
-				data[k].total_skills.skills[5].jammers =  data[k]["s_game_development"];
-				data[k].total_skills.skills[6].jammers =  data[k]["s_music"];
-				data[k].total_skills.skills[7].jammers =  data[k]["s_programming"];
-				data[k].total_skills.skills[8].jammers =  data[k]["s_hardware"];
-				data[k].total_skills.skills[9].jammers =  data[k]["s_project_management"];
-				data[k].total_skills.skills[10].jammers =  data[k]["s_quality_assurance"];
-				data[k].total_skills.skills[11].jammers =  data[k]["s_marketing"];
-				data[k].total_skills.skills[12].jammers =  data[k]["s_story_and_narrative"];
-				data[k].total_skills.skills[13].jammers =  data[k]["s_web_design"];
-				data[k].total_skills.skills[14].jammers = data[k]["s_writing"];
+				for( var skill in data[k].skills){
+					if(total_skills.skills[skill] == undefined){total_skills.skills[skill] = 0;} 
+					total_skills.skills[skill] += data[k].skills[skill];
+				}
+			}
+			for(var k in total_skills.skills){
+				total_skills.visdata.push({name:k, value:total_skills.skills[k]});
+			}
+				for( var k in data){
 				
-				total_skills.skills[0].jammers +=  data[k]["s_2d_art"];
-				total_skills.skills[1].jammers +=  data[k]["s_3d_art"];
-				total_skills.skills[2].jammers +=  data[k]["s_animation"];
-				total_skills.skills[3].jammers +=  data[k]["s_audio"];
-				total_skills.skills[4].jammers +=  data[k]["s_game_design"];
-				total_skills.skills[5].jammers +=  data[k]["s_game_development"];
-				total_skills.skills[6].jammers +=  data[k]["s_music"];
-				total_skills.skills[7].jammers +=  data[k]["s_programming"];
-				total_skills.skills[8].jammers +=  data[k]["s_hardware"];
-				total_skills.skills[9].jammers +=  data[k]["s_project_management"];
-				total_skills.skills[10].jammers +=  data[k]["s_quality_assurance"];
-				total_skills.skills[11].jammers +=  data[k]["s_marketing"];
-				total_skills.skills[12].jammers +=  data[k]["s_story_and_narrative"];
-				total_skills.skills[13].jammers +=  data[k]["s_web_design"];
-				total_skills.skills[14].jammers += data[k]["s_writing"];
+				//data[k].total_skills = {name: data[k].jamsite,  skills:[
+				//	{name: "2d Art", skill:"s_2d_art",jammers:0},
+				//	{name: "3d Art", skill:"s_3d_art",jammers:0},
+				//	{name: "Animation", skill:"s_animation",jammers:0},
+				//	{name: "Audio", skill:"s_audio",jammers:0},
+				//	{name: "Game Design", skill:"s_game_design",jammers:0},
+				//	{name: "Game Development", skill:"s_game_development",jammers:0},
+				//	{name: "Music", skill:"s_music",jammers:0},
+				//	{name: "Programming", skill:"s_programming",jammers:0},
+				//	{name: "Hardware", skill:"s_hardware",jammers:0},
+				//	{name: "Project Management", skill:"s_project_management",jammers:0},
+				//	{name: "QA", skill:"s_quality_assurance",jammers:0},
+				//	{name: "Marketing", skill:"s_marketing",jammers:0},
+				//	{name: "Story and Narrative", skill:"s_story_and_narrative",jammers:0},
+				//	{name: "Web Design", skill:"s_web_design",jammers:0},
+				//	{name: "Writing", skill:"s_writing",jammers:0}
+				//]};
+
+				//data[k].total_skills.skills[0].jammers =  data[k]["s_2d_art"];
+				//data[k].total_skills.skills[1].jammers =  data[k]["s_3d_art"];
+				//data[k].total_skills.skills[2].jammers =  data[k]["s_animation"];
+				//data[k].total_skills.skills[3].jammers =  data[k]["s_audio"];
+				//data[k].total_skills.skills[4].jammers =  data[k]["s_game_design"];
+				//data[k].total_skills.skills[5].jammers =  data[k]["s_game_development"];
+				//data[k].total_skills.skills[6].jammers =  data[k]["s_music"];
+				//data[k].total_skills.skills[7].jammers =  data[k]["s_programming"];
+				//data[k].total_skills.skills[8].jammers =  data[k]["s_hardware"];
+				//data[k].total_skills.skills[9].jammers =  data[k]["s_project_management"];
+				//data[k].total_skills.skills[10].jammers =  data[k]["s_quality_assurance"];
+				//data[k].total_skills.skills[11].jammers =  data[k]["s_marketing"];
+				//data[k].total_skills.skills[12].jammers =  data[k]["s_story_and_narrative"];
+				//data[k].total_skills.skills[13].jammers =  data[k]["s_web_design"];
+				//data[k].total_skills.skills[14].jammers = data[k]["s_writing"];
+				
+				//total_skills.skills[0].jammers +=  data[k]["s_2d_art"];
+				//total_skills.skills[1].jammers +=  data[k]["s_3d_art"];
+				//total_skills.skills[2].jammers +=  data[k]["s_animation"];
+				//total_skills.skills[3].jammers +=  data[k]["s_audio"];
+				//total_skills.skills[4].jammers +=  data[k]["s_game_design"];
+				//total_skills.skills[5].jammers +=  data[k]["s_game_development"];
+				//total_skills.skills[6].jammers +=  data[k]["s_music"];
+				//total_skills.skills[7].jammers +=  data[k]["s_programming"];
+				//total_skills.skills[8].jammers +=  data[k]["s_hardware"];
+				//total_skills.skills[9].jammers +=  data[k]["s_project_management"];
+				//total_skills.skills[10].jammers +=  data[k]["s_quality_assurance"];
+				//total_skills.skills[11].jammers +=  data[k]["s_marketing"];
+				//total_skills.skills[12].jammers +=  data[k]["s_story_and_narrative"];
+				//total_skills.skills[13].jammers +=  data[k]["s_web_design"];
+				//total_skills.skills[14].jammers += data[k]["s_writing"];
 			}
 			var total_skills_str = "";
 			for( var k in total_skills){
 				var s = total_skills[k];
-				total_skills_str += s.name + ':' + s.jammers + "   ";
+				total_skills_str += s + ':' + s.jammers + "   ";
 			}
 			
 			
@@ -291,7 +276,7 @@ $myfile = fopen("ggjsites.json", "r") or die("Unable to open file!");
 				.on("click", function(element) {
                     var currentGroup = d3.select(this.parentNode);
 					console.log(element);
-					 change(element.total_skills);
+					 change(element.total_skills.visdata);
                 });
 
 			tt
@@ -326,8 +311,11 @@ $myfile = fopen("ggjsites.json", "r") or die("Unable to open file!");
 
             //});
 			makePie();
-            change(total_skills);
-        })();
+            change(total_skills.visdata);
+			})();
+		
+		
+		
 		function calcpercent(datum){
 			 var total = 0;
 			 for( var k in datum){
@@ -390,7 +378,7 @@ $myfile = fopen("ggjsites.json", "r") or die("Unable to open file!");
 			pisvg.attr("transform", "translate(" + piwidth / 2 + "," + piheight / 2 + ")");
 
 			pikey = function(d){ 
-			return d.data.name; 
+			return d.data; 
 			};
 			centerText = pisvg.append("text");
 			centerText.attr("text-anchor","middle");
@@ -415,17 +403,20 @@ $myfile = fopen("ggjsites.json", "r") or die("Unable to open file!");
 			centerText.text(function(d) {
 				return data.name;
 			}).call(wrap, 160);
-			var data0 = pisvg.select(".slices").selectAll("path.slice").data().map(function(d) { return d.data });
-			if (data0.length == 0) data0 = data.skills;
-			var was = mergeWithFirstEqualZero(data.skills, data0);
-			var is = mergeWithFirstEqualZero(data0, data.skills);
+			var data0 = pisvg.select(".slices").selectAll("path.slice").data().map(function(d) { 
+			console.log(d);
+			return d.data 
+			});
+			if (data0 == undefined || data0.length == 0) data0 = data;
+			var was = mergeWithFirstEqualZero(data, data0);
+			var is = mergeWithFirstEqualZero(data0, data);
 			/* ------- PIE SLICES -------*/
 			var slice = pisvg.select(".slices").selectAll("path.slice")
-				.data(pie(data.skills), pikey);
+				.data(pie(data), pikey);
 
 			slice.enter()
 				.insert("path")
-				.style("fill", function(d,i) { console.log(d.data.skill); return piCol(d.data.skill); })
+				.style("fill", function(d,i) { console.log(d.data.value); return piCol(d.data.name); })
 				.attr("class", "slice");
 
 			slice		
@@ -443,9 +434,9 @@ $myfile = fopen("ggjsites.json", "r") or die("Unable to open file!");
 				.remove();
 
 			/* ------- TEXT LABELS -------*/
-			calcpercent(data.skills);
+			calcpercent(data);
 			var text = pisvg.select(".labels").selectAll("text")
-				.data(pie(data.skills), pikey);
+				.data(pie(data), pikey);
 
 			text.enter()
 				.append("text")
@@ -489,14 +480,14 @@ $myfile = fopen("ggjsites.json", "r") or die("Unable to open file!");
 					};
 				});
 				text = pisvg.select(".labels").selectAll("text")
-						.data(pie(data.skills), pikey);
+						.data(pie(data), pikey);
 		
 			text.exit().remove();
 
 			/* ------- SLICE TO TEXT POLYLINES -------*/
 
 			var polyline = pisvg.select(".lines").selectAll("polyline")
-				.data(pie(data.skills), pikey);
+				.data(pie(data), pikey);
 			
 			polyline.enter()
 				.append("polyline")
@@ -523,7 +514,7 @@ $myfile = fopen("ggjsites.json", "r") or die("Unable to open file!");
 					};			
 				});
 				
-			polyline = pisvg.select(".lines").selectAll("polyline").data(pie(data.skills), pikey);
+			polyline = pisvg.select(".lines").selectAll("polyline").data(pie(data), pikey);
 			polyline.exit()
 				.remove();
 		};

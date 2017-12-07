@@ -1,8 +1,8 @@
 <?php
 error_reporting(E_ALL);
 if(!is_null($_POST['newdata']) &&  strlen ($_POST['newdata']) > 0 ){
-	echo $_POST['newdata'];
 	$myfile = fopen("ggjsites.json", "w+") or die("Unable to open file!");
+	echo $_POST['newdata'];
 	fwrite($myfile, urldecode ( $_POST['newdata']));
 	exit();
 }
@@ -120,7 +120,9 @@ $myfile = fopen("ggjsites.json", "r") or die("Unable to open file!");
             data.sort(function(a, b) {
                 return b.jammers - a.jammers
             });
-						
+
+
+
 			total_skills = {name:"Total Uk Jammer Skills",  skills:[
 			{name: "2d Art", skill:"s_2d_art",jammers:0},
 			{name: "3d Art", skill:"s_3d_art",jammers:0},

@@ -1,18 +1,45 @@
 <?php
 error_reporting(E_ALL);
-$fileName ="ggjsites.json";
-if(!is_null($_POST['newdata']) &&  strlen ($_POST['newdata']) > 0 ){
-  if( !file_exists($fileName) ){
+$fileName = "ggjsites.json";
+if (!is_null($_POST['newdata']) && strlen($_POST['newdata']) > 0) {
+  if (!file_exists($fileName)) {
     header('X-Error-Message: no File Error', true, 500);
     die('no File Error');
   }
-  if (($fp = fopen($fileName, "w+"))!==false ) {
-    fwrite($fp, urldecode ( $_POST['newdata']));
+  if (($fp = fopen($fileName, "r+")) !== false) {
+    $rawfile = fread($fp, filesize($fileName));
+    $data    = json_decode($rawfile);
+    $toMerge = json_decode(urldecode($_POST['newdata']));
+    
+    foreach ($toMerge as $newSite) {
+      $matchedExistingSite = null;
+      foreach ($data as $matchedExistingSite) {
+        if ($newSite->jamsite == $matchedExistingSite->jamsite) {
+          $item = $matchedExistingSite;
+          break;
+        }
+      }
+      if ($item != null) {
+        //merge
+        $matchedExistingSite->jammers = array_merge($matchedExistingSite->jammers, $newSite->jammers);
+      } else {
+        //new site
+        array_push($data, $newSite);
+      }
+    }
+    
+    $mergedData = json_encode($data);
+    //Empty the file
+    ftruncate($fp, 0);
+    fseek($fp, 0);
+    //Write to File
+    fwrite($fp, $mergedData);
     fclose($fp);
-    echo $_POST['newdata'];
-  }
-  else
-  {
+    //Return Data;
+    header('Content-Type: application/json');
+    echo $mergedData;
+    exit(0);
+  } else {
     header('X-Error-Message: File Write Error', true, 500);
     die('File Write Error');
   }
@@ -20,37 +47,32 @@ if(!is_null($_POST['newdata']) &&  strlen ($_POST['newdata']) > 0 ){
 }
 
 #if(!is_null($_POST['membercount']) &&  strlen ($_POST['membercount']) > 0 ){
-##	echo $_POST['membercount'];
-##	$myfile = fopen("members.json", "a") or die("Unable to open file!");
-##	fwrite($myfile, urldecode ( $_POST['membercount']));
-##	exit();
+##    echo $_POST['membercount'];
+##    $myfile = fopen("members.json", "a") or die("Unable to open file!");
+##    fwrite($myfile, urldecode ( $_POST['membercount']));
+##    exit();
 #}
 
 $data = "";
-if( !file_exists($fileName) ){
+if (!file_exists($fileName)) {
   header('X-Error-Message: no File Error', true, 500);
   die('no File Error');
 }
-if (($fp = fopen($fileName, "r")) !== false ) {
+if (($fp = fopen($fileName, "r")) !== false) {
   $data = fread($fp, filesize($fileName));
   $data = preg_replace('~[\r\n]+~', '', $data);
   fclose($fp);
-}
-else
-{
+} else {
   header('X-Error-Message: File Write Error', true, 500);
   die('File Write Error');
 }
 
-if(!is_null($_GET['data'])){
+if (!is_null($_GET['data'])) {
   header('Content-Type: application/json');
   echo $data;
   exit(0);
 }
 
-//$sitesdata = fopen("ggjsites.json", "r") or die("Unable to open file!");
-//$napierdata = fopen("members.json", "r") or die("Unable to open file!");
-//echo (fread($myfile,filesize("ggjsites.json")));
 ?>
 <!DOCTYPE html>
 <html>
@@ -79,6 +101,9 @@ if(!is_null($_GET['data'])){
     <div class="chartcontainer">
     <canvas id="canvas" width="1024" height="768" style="display: block;"></canvas>
     </div>
+    <div class="chartcontainer">
+    <canvas id="canvas2" width="1024" height="768" style="display: block;"></canvas>
+    </div>
     <script type="text/javascript"><?php echo("var rawdata = ".$data.";"); ?> </script>
     <script type="text/javascript">
         
@@ -89,26 +114,51 @@ if(!is_null($_GET['data'])){
         return;
       }
     }
-    let chart;
+
+    function genData(cnt,scaler = 1){
+      let ret = [];
+      let last = 1;
+      for (let index = 0; index < cnt; index++) {
+       last = last + Math.round((scaler*10) * Math.random())
+       ret.push(last);
+      }
+      return ret;
+    }
+    let tempDates = [ ...Array(10).keys() ];
+    let colours = ["#1f77b4", "#ff7f0e", "#2ca02c", "#d62728", "#9467bd", "#8c564b", "#e377c2", "#7f7f7f", "#bcbd22", "#17becf"];
+    let chart,chart2;
     var data = rawdata;
     var total_skills;
     let cuttoff = 1;
-    let merged = data.filter((a) => a.jammers <= cuttoff);
-    data = data.filter((a) => a.jammers > cuttoff);
+
+    //Find latestJammersCount
+    data.forEach((e)=>{
+      if(e.jammers.length == 0){
+        e.latestJammersCount =0; return;
+      }
+      e.latestJammersCount = e.jammers.reduce((acc,cv)=>{if (new Date(acc.date) > new Date(cv.date)){return cv;}return acc; },e.jammers[0]).count
+    });
+
+    //Split Sites that have not enough jammers into merged.
+    let merged = data.filter((a) => a.latestJammersCount <= cuttoff);
+    data = data.filter((a) => a.latestJammersCount > cuttoff);
     if(merged.length){
       data.push({
-        jammers: cuttoff,
+        latestJammersCount: cuttoff,
         jamsite: merged.length + " Sites Not Shown \n ",
         skills: {},
         url: ""
       });
      }
-   
-    
-    data = data.sort((a,b)=>a.jammers-b.jammers);
+    //Sort by jammers
+    data = data.sort((a,b)=>a.latestJammersCount-b.latestJammersCount);
+    //Add Relevant data tags for line chart
+    data.forEach((e,i)=>{e.label = e.jamsite; e.data = genData(10,e.latestJammersCount); e.backgroundColor=colours[i%colours.length]; });
+    //Gather data arrays for bar chart
     let sites = data.map((e)=>e.jamsite);
-    let numbers = data.map((e)=>e.jammers)
+    let numbers = data.map((e)=>e.latestJammersCount)
 
+    //Setup chartJs
     var horizontalBarChartData = {
       labels: sites,
       datasets: [{
@@ -121,9 +171,7 @@ if(!is_null($_GET['data'])){
     };
 
     $( document ).ready(function() {
-
-      var ctx = $("#canvas")[0].getContext('2d');
-      chart = new Chart(ctx, {
+      chart = new Chart($("#canvas")[0].getContext('2d'), {
         type: 'horizontalBar',
         data: horizontalBarChartData,
         options: {
@@ -161,6 +209,38 @@ if(!is_null($_GET['data'])){
                 weight: 'bold'
               },
               formatter: Math.round
+            }
+          }
+        }
+      });
+      
+      
+      var lineChartData = {
+        labels: tempDates,
+        datasets: data
+      };
+      chart2 = 	new Chart($("#canvas2")[0].getContext('2d'), {
+        type: 'line',
+        data: lineChartData,
+        options: {
+          maintainAspectRatio: false,
+          spanGaps: false,
+          elements: {
+            line: {
+              tension: 0.000001
+            }
+          },
+          scales: {
+            yAxes: [{
+              stacked: true
+            }]
+          },
+          plugins: {
+            filler: {
+              propagate: false
+            },
+            'samples-filler-analyser': {
+              target: 'chart-analyser'
             }
           }
         }

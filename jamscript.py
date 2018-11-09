@@ -5,12 +5,15 @@ import time
 import json
 import collections
 import threading
+from datetime import datetime
 from collections import Counter
 
 urlfilterRegex = re.compile('.*members')
 sitenameRegex = re.compile("(.*) Members")
 memberRegex = re.compile(".* of (\d+) registered")
 userurlfilterRegex = re.compile('\/users\/.*')
+
+now_date = datetime.now().strftime('%Y-%m-%dT%H:%M:%S.%f')
 
 def crawluser(skillslock, skills, prof ):
     ah = prof.find('a', href=userurlfilterRegex)
@@ -49,7 +52,7 @@ def crawl(sitelock,sites, idx, link):
      site['skills'] = dict(skills)
      site['jamsite'] = sitename
      site['url'] = siteurl[:-8]
-     site['jammers'] = int(membercount)
+     site['jammers'] = [{'date':now_date,'count':int(membercount)}]
      with sitelock:
           sites.append(site)
      #print(str(idx) + '/' + str(len(sitelinks)) + ',\t' + sitename + " done")
@@ -81,7 +84,7 @@ for t in threads:
 newdata = json.dumps(sites)
 print(newdata)
 headers = {'Content-type': 'application/x-www-form-urlencoded', 'Accept': 'text/plain'}
-response = requests.post('http://games.soc.napier.ac.uk/ggj/ggjrank.php', data={'newdata':newdata}, headers=headers)
+#response = requests.post('http://games.soc.napier.ac.uk/ggj/ggjrank.php', data={'newdata':newdata}, headers=headers)
 print("Upload Responce code:")
 print(response)
 print("Upload Responce text:")

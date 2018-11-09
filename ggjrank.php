@@ -1,12 +1,50 @@
 <?php
 error_reporting(E_ALL);
+$fileName ="ggjsites.json";
 if(!is_null($_POST['newdata']) &&  strlen ($_POST['newdata']) > 0 ){
-	echo $_POST['newdata'];
-	$myfile = fopen("ggjsites.json", "w+") or die("Unable to open file!");
-	fwrite($myfile, urldecode ( $_POST['newdata']));
+  if( !file_exists($fileName) ){
+    header('X-Error-Message: no File Error', true, 500);
+    die('no File Error');
+  }
+  if (($fp = fopen($fileName, "w+"))!==false ) {
+    fwrite($fp, urldecode ( $_POST['newdata']));
+    fclose($fp);
+    echo $_POST['newdata'];
+  }
+  else
+  {
+    header('X-Error-Message: File Write Error', true, 500);
+    die('File Write Error');
+  }
+  exit();
+}
+if(!is_null($_POST['membercount']) &&  strlen ($_POST['membercount']) > 0 ){
+	echo $_POST['membercount'];
+	$myfile = fopen("members.json", "a") or die("Unable to open file!");
+	fwrite($myfile, urldecode ( $_POST['membercount']));
 	exit();
 }
-$myfile = fopen("ggjsites.json", "r") or die("Unable to open file!");
+
+if(!is_null($_GET['data'])){
+  if( !file_exists($fileName) ){
+    header('X-Error-Message: no File Error', true, 500);
+    die('no File Error');
+  }
+  if (($fp = fopen($fileName, "r")) !== false ) {
+    echo fread($fp, filesize($fileName));
+    fclose($fp);
+    echo $_POST['newdata'];
+  }
+  else
+  {
+    header('X-Error-Message: File Write Error', true, 500);
+    die('File Write Error');
+  }
+  exit();
+}
+
+$sitesdata = fopen("ggjsites.json", "r") or die("Unable to open file!");
+//$napierdata = fopen("members.json", "r") or die("Unable to open file!");
 //echo (fread($myfile,filesize("ggjsites.json")));
 ?>
 <!DOCTYPE html>

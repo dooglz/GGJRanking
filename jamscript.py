@@ -52,12 +52,12 @@ def crawl(sitelock,sites, idx, link):
      site['jammers'] = int(membercount)
      with sitelock:
           sites.append(site)
-     print(str(idx) + '/' + str(len(sitelinks)) + ',\t' + sitename + " done")
+     #print(str(idx) + '/' + str(len(sitelinks)) + ',\t' + sitename + " done")
 
 start = time.time()
 
 s = requests.Session()
-url="http://globalgamejam.org/2018/jam-sites?title=&country=GB"
+url="https://globalgamejam.org/2019/jam-sites?title=&country=GB"
 page = s.get(url).text
 soup = BeautifulSoup(page, "html.parser")
 
@@ -67,20 +67,25 @@ sitelinks = soup.find_all('a', href=urlfilterRegex)
 siteslock = threading.Lock()
 threads = [threading.Thread(target=crawl, args=(siteslock,sites, idx, link)) for idx, link in enumerate(sitelinks)]
 #threads = [threading.Thread(target=crawl, args=(siteslock,sites, 0, sitelinks[34]))]
+
+print("idx/total, \tsitename, \tmembercount")
+
 for t in threads:
      t.start()
 
 for t in threads:
      t.join()
 
-print(sites)
-print(json.dumps(sites))
-newdata = {'newdata':json.dumps(sites)}
+#print(sites)
+#print(json.dumps(sites))
+newdata = "{\"newdata\":"+json.dumps(sites)+"}"
 print(newdata)
 headers = {'Content-type': 'application/x-www-form-urlencoded', 'Accept': 'text/plain'}
 response = requests.post('http://games.soc.napier.ac.uk/ggj/ggjrank.php', data=newdata, headers=headers)
+print("Upload Responce code:")
 print(response)
+print("Upload Responce text:")
 print(response.text)
 end = time.time()    
-print(end - start)
+print("Time Taken:",  round(end - start))
 

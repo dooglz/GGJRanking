@@ -124,10 +124,13 @@ if (!is_null($_GET['data'])) {
       }
       return ret;
     }
-    let tempDates = [ ...Array(10).keys() ];
+
+    var data = rawdata;
+    let points = data.reduce((acc,cv)=>{return Math.max(acc,cv.jammers.length)},1);
+    let tempDates = [ ...Array(points).keys() ];
     let colours = ["#1f77b4", "#ff7f0e", "#2ca02c", "#d62728", "#9467bd", "#8c564b", "#e377c2", "#7f7f7f", "#bcbd22", "#17becf"];
     let chart,chart2;
-    var data = rawdata;
+
     var total_skills;
     let cuttoff = 1;
 
@@ -153,7 +156,16 @@ if (!is_null($_GET['data'])) {
     //Sort by jammers
     data = data.sort((a,b)=>a.latestJammersCount-b.latestJammersCount);
     //Add Relevant data tags for line chart
-    data.forEach((e,i)=>{e.label = e.jamsite; e.data = genData(10,e.latestJammersCount); e.backgroundColor=colours[i%colours.length]; });
+    data.forEach((e,i)=>{
+      e.label = e.jamsite; 
+      //e.data = genData(10,e.latestJammersCount); 
+      if(e.jammers == undefined){
+        e.data = Array(points).fill(cuttoff);
+      }else{
+        e.data = e.jammers.map((e)=>e.count);
+      }
+      e.backgroundColor=colours[i%colours.length];
+    });
     //Gather data arrays for bar chart
     let sites = data.map((e)=>e.jamsite);
     let numbers = data.map((e)=>e.latestJammersCount)
@@ -231,6 +243,13 @@ if (!is_null($_GET['data'])) {
             }
           },
           scales: {
+            xAxes: [{
+              type: 'time',
+              distribution: 'series',
+              ticks: {
+                source: 'labels'
+              }
+					  }],
             yAxes: [{
               stacked: true
             }]

@@ -78,10 +78,10 @@ for t in threads:
 
 #print(sites)
 #print(json.dumps(sites))
-newdata = "{\"newdata\":"+json.dumps(sites)+"}"
+newdata = json.dumps(sites)
 print(newdata)
 headers = {'Content-type': 'application/x-www-form-urlencoded', 'Accept': 'text/plain'}
-response = requests.post('http://games.soc.napier.ac.uk/ggj/ggjrank.php', data=newdata, headers=headers)
+response = requests.post('http://games.soc.napier.ac.uk/ggj/ggjrank.php', data={'newdata':newdata}, headers=headers)
 print("Upload Responce code:")
 print(response)
 print("Upload Responce text:")

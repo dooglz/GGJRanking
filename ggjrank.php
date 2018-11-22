@@ -126,7 +126,27 @@ if (!is_null($_GET['data'])) {
     }
 
     var data = rawdata;
-    let points = data.reduce((acc,cv)=>{return Math.max(acc,cv.jammers.length)},1);
+    //let points = data.reduce((acc,cv)=>{return Math.max(acc,cv.jammers.length)},1);
+    let points  = 20;   
+    let mindate = data.reduce((acc,cv)=>{return Math.min(acc,new Date(cv.jammers[0].date))},new Date());
+    let maxdate = data.reduce((acc,cv)=>{return Math.min(acc,new Date(cv.jammers[cv.jammers.length-1].date))},new Date());
+    let datestep = (maxdate - mindate) / (points-2);
+    let datepoints = [];
+    for(let i=0; i < points; i++){
+      datepoints.push(new Date(Math.floor(i*datestep) + mindate));
+    }
+    
+    let valuelookup = function(site,date){
+      let ret = site.jammers[0].count;
+      for(let i=0; i < site.jammers.length; i++){
+        if(new Date(site.jammers[i].date) > date){
+          return ret;
+        }
+        ret = site.jammers[i].count;
+      }
+      return ret;
+    }
+    
     let tempDates = [ ...Array(points).keys() ];
     let colours = ["#1f77b4", "#ff7f0e", "#2ca02c", "#d62728", "#9467bd", "#8c564b", "#e377c2", "#7f7f7f", "#bcbd22", "#17becf"];
     let chart,chart2;
@@ -139,7 +159,7 @@ if (!is_null($_GET['data'])) {
       if(e.jammers.length == 0){
         e.latestJammersCount =0; return;
       }
-      e.latestJammersCount = e.jammers.reduce((acc,cv)=>{if (new Date(acc.date) > new Date(cv.date)){return cv;}return acc; },e.jammers[0]).count
+      e.latestJammersCount = e.jammers.reduce((acc,cv)=>{if (new Date(acc.date) < new Date(cv.date)){return cv;}return acc; },e.jammers[0]).count
     });
 
     //Split Sites that have not enough jammers into merged.
@@ -149,6 +169,7 @@ if (!is_null($_GET['data'])) {
       data.push({
         latestJammersCount: cuttoff,
         jamsite: merged.length + " Sites Not Shown \n ",
+        jammers: datepoints.map(()=>cuttoff),
         skills: {},
         url: ""
       });
@@ -181,7 +202,17 @@ if (!is_null($_GET['data'])) {
       data: numbers
       }]
     };
-
+    var lineChartData = {
+      labels: datepoints,
+      datasets: data.map((s)=>{
+        return ({
+          label:s.label,
+          data:datepoints.map((dp)=>valuelookup(s,dp)),
+          backgroundColor:s.backgroundColor
+        });
+      })
+    };
+    
     $( document ).ready(function() {
       chart = new Chart($("#canvas")[0].getContext('2d'), {
         type: 'horizontalBar',
@@ -227,10 +258,7 @@ if (!is_null($_GET['data'])) {
       });
       
       
-      var lineChartData = {
-        labels: tempDates,
-        datasets: data
-      };
+
       chart2 = 	new Chart($("#canvas2")[0].getContext('2d'), {
         type: 'line',
         data: lineChartData,
@@ -244,10 +272,13 @@ if (!is_null($_GET['data'])) {
           },
           scales: {
             xAxes: [{
-              type: 'time',
+              
               distribution: 'series',
               ticks: {
-                source: 'labels'
+                source: 'labels',
+                callback: function(value, index, values) {
+                        return value.getDate()+'/'+(value.getMonth()+1);
+                    }
               }
 					  }],
             yAxes: [{
